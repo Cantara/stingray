@@ -21,7 +21,7 @@
         <jetty.version>11.0.11</jetty.version>
         <swagger.version>2.2.1</swagger.version>
         <jakarta.version>3.0.0</jakarta.version>
-        <jakarta_data.version>3.0.2</jakarta_data.version>
+        <jakarta_data.version>4.0.0</jakarta_data.version>
     </properties>
 
     <dependencyManagement>
