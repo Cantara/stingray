@@ -1,7 +1,9 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
-  ],
+    "local>cantara/Cantara-Renovate-Config"
+  ]
+},
   "ignoreDeps": [
     "hibernate-validator"
   ]
