@@ -43,6 +43,10 @@ public class StingrayJwtHelper {
         }
     }
 
+    public String getAppTokenFromJwtToken() throws JwkException {
+        return getClaimFromJwtToken("app_token", String.class);
+    }
+
     public String getUserNameFromJwtToken() throws JwkException {
         return getClaimFromJwtToken("sub", String.class);
     }

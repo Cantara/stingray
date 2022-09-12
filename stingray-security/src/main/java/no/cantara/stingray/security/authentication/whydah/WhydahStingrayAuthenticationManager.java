@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class WhydahStingrayAuthenticationManager implements StingrayAuthenticationManager {
 
     private static final Logger log = LoggerFactory.getLogger(WhydahStingrayAuthenticationManager.class);
-    private static Pattern appTokenIdPattern = Pattern.compile("<applicationtokenID>([^<]*)</applicationtokenID>");
+    private static final Pattern appTokenIdPattern = Pattern.compile("<applicationtokenID>([^<]*)</applicationtokenID>");
 
     private final String oauth2Uri;
     private final StingrayApplicationTokenSession applicationTokenSession;
@@ -124,7 +124,7 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
                     usertokenid = userToken.getUserTokenId();
                     ssoId = userToken.getUid();
                     if (ssoId == null || ssoId.isEmpty()) {
-                        log.debug("Unsucessful resolving of user-authentication, ssoId is null or empty. ssoid '{}'", ssoId);
+                        log.debug("Unsuccessful resolving of user-authentication, ssoId is null or empty. ssoid '{}'", ssoId);
                         throw new UnauthorizedStingrayException();
                     }
                     username = userToken.getUserName();
@@ -168,11 +168,11 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
         boolean okUserSession = whydahService.validateUserTokenId(usertokenid);
 
         if (customerRef == null || customerRef.isEmpty()) {
-            log.debug("Unsucessful resolving of user-authentication, customerRef is null or empty. customerRef {}", customerRef);
+            log.debug("Unsuccessful resolving of user-authentication, customerRef is null or empty. customerRef {}", customerRef);
             throw new UnauthorizedStingrayException();
         }
         if (!okUserSession) {
-            log.debug("Unsucessful resolving of user-authentication, okUserSession false.");
+            log.debug("Unsuccessful resolving of user-authentication, okUserSession false.");
             throw new UnauthorizedStingrayException();
         }
         log.debug("Successful user authentication");
@@ -230,34 +230,53 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
                 // assume that bearer token is application-token xml, extract the application-token-id from it
                 Matcher m = appTokenIdPattern.matcher(token);
                 if (m.find()) {
-                    String applicationTokenId = m.group(1);
                     // Use only the application-token-id from the xml, we cannot trust anything else unless it was signed
-                    final String applicationId = whydahService.getApplicationIdFromApplicationTokenId(applicationTokenId);
-                    log.trace("Lookup application by applicationTokenId {}. Id found {}", token, applicationId);
-                    if (applicationId != null) {
-                        return new DefaultStingrayApplicationAuthentication(applicationId, applicationTokenId, () -> {
-                            List<StingrayApplicationTag> tags = whydahService.getApplicationTagsFromApplicationTokenId(applicationTokenId);
-                            return tags;
-                        }, whydahAuthGroupApplicationTagName);
-                    }
+                    String applicationTokenId = m.group(1);
+                    log.trace("Resolved applicationTokenId {} from token {}", applicationTokenId, token);
+                    return authenticateAsApplicationForApplicationTokenId(applicationTokenId);
                 } else {
                     log.warn("Invalid application-token XML sent as bearer token. This is not a supported authentication mechanism. Token: {}", token);
                 }
             } else {
-                // assume that bearer token is application-token-id
-                final String applicationId = whydahService.getApplicationIdFromApplicationTokenId(token);
-                log.trace("Lookup application by applicationTokenId {}. Id found {}", token, applicationId);
-                if (applicationId != null) {
-                    return new DefaultStingrayApplicationAuthentication(applicationId, token, () -> {
-                        List<StingrayApplicationTag> tags = whydahService.getApplicationTagsFromApplicationTokenId(token);
-                        return tags;
-                    }, whydahAuthGroupApplicationTagName);
+                if (token.length() > 50) {
+                    log.trace("Suspected JWT-token is {}", token);
+                } else {
+                    log.trace("Suspected whydah-application-token-id is {}", token);
                 }
+                try {
+                    StingrayJwtHelper jwtUtils = new StingrayJwtHelper(oauth2Uri, token);
+                    String applicationTokenId = jwtUtils.getAppTokenFromJwtToken();
+                    if (applicationTokenId != null && !applicationTokenId.isEmpty()) {
+                        log.trace("Found application token id {} in jwt token", applicationTokenId);
+                        return authenticateAsApplicationForApplicationTokenId(applicationTokenId);
+                    }
+                } catch (JWTDecodeException e) {
+                    log.trace("Not a jwt token: {}", token);
+                } catch (JwkException e) {
+                    log.warn("Unable to retrieve app_token from jwt token: {}", token);
+                    return null;
+                }
+
+                // assume that bearer token is application-token-id
+                return authenticateAsApplicationForApplicationTokenId(token);
             }
         } catch (Exception e) {
             log.error("Exception in attempt to resolve authorization, bearerToken: " + authorizationHeader, e);
         }
         return null;
+    }
+
+    private DefaultStingrayApplicationAuthentication authenticateAsApplicationForApplicationTokenId(String applicationTokenId) {
+        final String applicationId = whydahService.getApplicationIdFromApplicationTokenId(applicationTokenId);
+        log.trace("Lookup application from applicationTokenId {}. Id found {}", applicationTokenId, applicationId);
+        if (applicationId != null) {
+            return new DefaultStingrayApplicationAuthentication(applicationId, applicationTokenId, () -> {
+                List<StingrayApplicationTag> tags = whydahService.getApplicationTagsFromApplicationTokenId(applicationTokenId);
+                return tags;
+            }, whydahAuthGroupApplicationTagName);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -267,8 +286,7 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
             return new DefaultStingrayAuthenticationResult(null);
         }
         String token = authorization.substring("Bearer ".length());
-
-        if (token.contains("<applicationtoken>") || token.length() < 33) {
+        if (isApplicationToken(token)) {
             try {
                 StingrayApplicationAuthentication applicationAuthentication = authenticateAsApplication(authorization);
                 return new DefaultStingrayAuthenticationResult(applicationAuthentication);
@@ -277,7 +295,7 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
             }
         }
 
-        //Assume jwt or whydah token
+        //Assume jwt or whydah user token
         try {
             StingrayUserAuthentication userAuthentication = authenticateAsUser(authorization);
             return new DefaultStingrayAuthenticationResult(userAuthentication);
@@ -289,6 +307,26 @@ public class WhydahStingrayAuthenticationManager implements StingrayAuthenticati
     @Override
     public StingrayApplicationTokenSession getApplicationTokenSession() {
         return applicationTokenSession;
+    }
+
+    private boolean isApplicationToken(String token) {
+        if (token.contains("<applicationtoken>") || token.length() < 33) {
+            return true;
+        }
+        // Check whether it is a jwt token with app_token
+        try {
+            StingrayJwtHelper jwtUtils = new StingrayJwtHelper(oauth2Uri, token);
+            String appToken = jwtUtils.getAppTokenFromJwtToken();
+            if (appToken != null && !appToken.isEmpty()) {
+                log.debug("Found app token in jwt token");
+                return true;
+            }
+        } catch (JWTDecodeException e) {
+            log.debug("Not a jwt token");
+        } catch (JwkException e) {
+            log.debug("Unable to retrieve app_token from jwt token");
+        }
+        return false;
     }
 }
 
