@@ -14,13 +14,16 @@ import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.internal.routing.RoutingContext;
 
 import java.lang.reflect.Method;
+import java.util.function.BiConsumer;
 
 class StingraySecurityInitializationHelper {
 
     private final StingrayApplication application;
+    private final BiConsumer<StingrayApplication, ApplicationProperties.Builder> configBuilder;
 
-    StingraySecurityInitializationHelper(StingrayApplication application) {
+    StingraySecurityInitializationHelper(StingrayApplication application, BiConsumer<StingrayApplication, ApplicationProperties.Builder> configBuilder) {
         this.application = application;
+        this.configBuilder = configBuilder;
     }
 
     void initSecurity() {
@@ -37,15 +40,9 @@ class StingraySecurityInitializationHelper {
     }
 
     StingrayAccessManager createAccessManager() {
-        String applicationAlias = application.alias();
-        ApplicationProperties authConfig = ApplicationProperties.builder()
-                .classpathPropertiesFile(applicationAlias + "/service-authorization.properties")
-                .classpathPropertiesFile(applicationAlias + "/authorization.properties")
-                .classpathPropertiesFile(applicationAlias + "-authorization.properties")
-                .classpathPropertiesFile("authorization-" + applicationAlias + ".properties")
-                .filesystemPropertiesFile("authorization.properties")
-                .filesystemPropertiesFile(applicationAlias + "-authorization.properties")
-                .filesystemPropertiesFile("authorization-" + applicationAlias + ".properties")
+        ApplicationProperties.Builder builder = ApplicationProperties.builder();
+        configBuilder.accept(application, builder);
+        ApplicationProperties authConfig = builder
                 .build();
         String provider = application.config().get("authorization.provider", "default");
         StingrayAccessManager accessManager = ProviderLoader.configure(authConfig, provider, StingrayAccessManagerFactory.class);

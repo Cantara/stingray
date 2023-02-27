@@ -3,6 +3,7 @@ package no.cantara.stingray.sample.greeter;
 import com.codahale.metrics.MetricRegistry;
 import no.cantara.config.ApplicationProperties;
 import no.cantara.stingray.application.AbstractStingrayApplication;
+import no.cantara.stingray.application.StingrayApplication;
 import no.cantara.stingray.application.health.StingrayHealthService;
 import no.cantara.stingray.security.StingraySecurity;
 import org.slf4j.Logger;
@@ -31,12 +32,18 @@ public class GreeterApplication extends AbstractStingrayApplication<GreeterAppli
     @Override
     public void doInit() {
         initBuiltinDefaults();
-        StingraySecurity.initSecurity(this);
+        StingraySecurity.initSecurity(this, this::customAccessManagerSecurity);
         init(GreetingCandidateRepository.class, this::createGreetingCandidateRepository);
         init(RandomizerClient.class, this::createHttpRandomizer);
         init(GreetingService.class, this::createGreetingService);
         GreetingResource greetingResource = initAndRegisterJaxRsWsComponent(GreetingResource.class, this::createGreetingResource);
         get(StingrayHealthService.class).registerHealthProbe("greeting.request.count", greetingResource::getRequestCount);
+    }
+
+    private void customAccessManagerSecurity(StingrayApplication application, ApplicationProperties.Builder builder) {
+        StingraySecurity.defaultAccessManagerConfig(application, builder);
+        builder.enableSystemProperties("access-manager.")
+                .enableEnvironmentVariables("ACCESS_MANAGER_");
     }
 
     private GreetingCandidateRepository createGreetingCandidateRepository() {
