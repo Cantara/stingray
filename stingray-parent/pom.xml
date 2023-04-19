@@ -18,7 +18,7 @@
     <properties>
         <metrics.version>4.2.18</metrics.version>
         <jersey.version>3.0.8</jersey.version>
-        <jetty.version>11.0.13</jetty.version>
+        <jetty.version>11.0.14</jetty.version>
         <swagger.version>2.2.9</swagger.version>
         <jakarta.version>3.1.0</jakarta.version>
     </properties>
