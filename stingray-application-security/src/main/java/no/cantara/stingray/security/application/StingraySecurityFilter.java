@@ -26,6 +26,7 @@ public class StingraySecurityFilter implements ContainerRequestFilter {
     static {
         securityOverriddenPaths = new LinkedHashSet<>();
         securityOverriddenPaths.add("health");
+        securityOverriddenPaths.add("health/pretty");
         securityOverriddenPaths.add("openapi.yaml");
         securityOverriddenPaths.add("openapi.json");
     }
