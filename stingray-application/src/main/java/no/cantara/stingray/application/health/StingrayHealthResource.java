@@ -61,7 +61,7 @@ public class StingrayHealthResource {
     }
 
     @GET
-    @Path("/pretty")
+    @Path("pretty")
     @Produces(MediaType.APPLICATION_JSON)
     @SecurityRequirements(@SecurityRequirement(name = "none")) // disable authorization requirement in openapi spec
     public Response getHealthPrettyPrinted() {
