@@ -1,4 +1,7 @@
 # Stingray
+
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Cantara/Stingray) ![Build Status](https://jenkins.cantara.no/buildStatus/icon?job=Stingray) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Cantara/Stingray) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![Known Vulnerabilities](https://snyk.io/test/github/Cantara/Stingray/badge.svg)](https://snyk.io/test/github/Cantara/Stingray)
+
 Application framework based on Servlets, Jetty, Javax/Jakarta RsWs, Jersey
 
 # Dropwizard Metrics
