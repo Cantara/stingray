@@ -5,11 +5,11 @@
     <parent>
         <groupId>no.cantara.stingray</groupId>
         <artifactId>samples</artifactId>
-        <version>1.9.5-SNAPSHOT</version>
+        <version>1.9.5</version>
     </parent>
 
     <artifactId>greeter</artifactId>
-    <version>1.9.5-SNAPSHOT</version>
+    <version>1.9.5</version>
     <packaging>jar</packaging>
 
     <name>Sample-Greeter</name>
