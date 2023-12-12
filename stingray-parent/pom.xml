@@ -17,7 +17,7 @@
 
     <properties>
         <metrics.version>4.2.23</metrics.version>
-        <jersey.version>3.1.4</jersey.version>
+        <jersey.version>3.1.5</jersey.version>
         <jetty.version>11.0.18</jetty.version>
         <swagger.version>2.2.19</swagger.version>
         <jakarta.version>3.1.0</jakarta.version>
@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
-                <version>3.1.4</version>
+                <version>3.1.5</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.inject</groupId>
