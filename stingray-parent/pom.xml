@@ -21,6 +21,10 @@
         <jetty.version>11.0.25</jetty.version>
         <swagger.version>2.2.29</swagger.version>
         <jakarta.version>3.1.0</jakarta.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <java.version>21</java.version>
     </properties>
 
     <dependencyManagement>
@@ -186,9 +190,9 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.14.0</version>
                     <configuration>
-                        <release>11</release>
-                        <target>11</target>
-                        <source>11</source>
+                        <release>21</release>
+                        <target>21</target>
+                        <source>21</source>
                         <encoding>${module.build.sourceEncoding}</encoding>
                         <meminitial>64m</meminitial>
                         <maxmem>512m</maxmem>
