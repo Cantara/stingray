@@ -5,12 +5,12 @@
     <parent>
         <groupId>no.cantara.stingray</groupId>
         <artifactId>stingray-project</artifactId>
-        <version>1.21.3-SNAPSHOT</version>
+        <version>1.21.3</version>
     </parent>
 
 
     <artifactId>stingray-security</artifactId>
-    <version>1.21.3-SNAPSHOT</version>
+    <version>1.21.3</version>
     <packaging>jar</packaging>
 
     <name>StingraySecurity</name>
