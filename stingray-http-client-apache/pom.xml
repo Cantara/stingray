@@ -5,12 +5,12 @@
     <parent>
         <groupId>no.cantara.stingray</groupId>
         <artifactId>stingray-parent</artifactId>
-        <version>1.21.4</version>
+        <version>1.21.5-SNAPSHOT</version>
         <relativePath>../stingray-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>stingray-http-client-apache</artifactId>
-    <version>1.21.4</version>
+    <version>1.21.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Stingray Apache Http Client</name>
