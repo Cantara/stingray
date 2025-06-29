@@ -5,11 +5,11 @@
     <parent>
         <groupId>no.cantara.stingray</groupId>
         <artifactId>stingray-project</artifactId>
-        <version>1.21.6-SNAPSHOT</version>
+        <version>1.21.6</version>
     </parent>
 
     <artifactId>stingray-sql</artifactId>
-    <version>1.21.6-SNAPSHOT</version>
+    <version>1.21.6</version>
     <packaging>jar</packaging>
 
     <name>StingraySql</name>
