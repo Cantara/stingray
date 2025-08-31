@@ -16,7 +16,7 @@
     <description>Stingray-Parent</description>
 
     <properties>
-        <metrics.version>4.2.34</metrics.version>
+        <metrics.version>4.2.36</metrics.version>
         <jersey.version>3.1.11</jersey.version>
         <jetty.version>11.0.26</jetty.version>
         <swagger.version>2.2.36</swagger.version>
