@@ -5,12 +5,12 @@
     <parent>
         <groupId>no.cantara.stingray</groupId>
         <artifactId>stingray-parent</artifactId>
-        <version>1.21.12</version>
+        <version>1.21.13-SNAPSHOT</version>
         <relativePath>../stingray-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>stingray-application-test</artifactId>
-    <version>1.21.12</version>
+    <version>1.21.13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>StingrayApplication-Test</name>
