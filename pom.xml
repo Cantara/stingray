@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>net.whydah.sso</groupId>
                 <artifactId>Whydah-Java-SDK</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.maven.plugins</groupId>
