@@ -1,0 +1,25 @@
+id: stingray-project
+name: Stingray
+version: 1.11.9-SNAPSHOT
+description: |
+  Lightweight application framework built on Servlets, Jetty, and JAX-RS
+  (Jersey). Provides a streamlined foundation for building RESTful services with
+  Cantara conventions, health checks, and lifecycle management baked in.
+units:
+  - id: application
+    name: Application
+    type: component
+    description: Stingray application bootstrap — wires Jetty, Jersey, and component lifecycle.
+    path: src/main/java/no/cantara/stingray
+  - id: server
+    name: Server
+    type: component
+    description: Embedded Jetty server configuration — port, thread pool, and connector setup.
+  - id: security
+    name: Security
+    type: component
+    description: Authentication and authorisation integration hooks for securing REST endpoints.
+  - id: health
+    name: Health
+    type: component
+    description: Health check and readiness endpoints conforming to Cantara conventions.
