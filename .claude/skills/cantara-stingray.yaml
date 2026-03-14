@@ -1,0 +1,238 @@
+name: cantara-stingray
+version: 1.0.0
+description: >
+  Stingray application framework — the foundational layer for Cantara microservices.
+  Covers the multi-module structure (application, security, sql, http-client),
+  StingrayApplication bootstrap, Whydah security integration, SQL/Flyway
+  database layer, health probes, and CORS handling. Used by ConfigService,
+  microservice-baseline, and other Cantara services.
+
+  Trigger phrases: "stingray, stingray application, stingray framework, stingray security,
+  stingray sql, stingray flyway, stingray health, stingray whydah, cantara framework,
+  stingray datasource, stingray http client, microservice baseline, cantara microservice,
+  stingray access manager, stingray authentication"
+
+context:
+  org: cantara
+  repos:
+    - stingray (multi-module framework)
+    - microservice-baseline (template using Stingray)
+
+instructions: |
+  ## Overview
+
+  Stingray is the foundational application framework for Cantara microservices. It provides
+  a standardised way to build RESTful services with embedded Jetty, Jersey JAX-RS,
+  health checks, security (Whydah integration), SQL database access (Flyway migrations),
+  and HTTP client utilities. Most Cantara services (ConfigService, Valuereporter, etc.)
+  are built on Stingray.
+
+  **Group ID:** `no.cantara.stingray`
+  **Version:** 1.21.15-SNAPSHOT (parent POM version)
+  **License:** Apache 2.0
+
+  ## Module Structure
+
+  | Module | Artifact | Purpose |
+  |--------|----------|---------|
+  | `stingray-application` | `stingray-application` | Core: Jetty + Jersey + lifecycle + health |
+  | `stingray-security` | `stingray-security` | Whydah auth integration + RBAC |
+  | `stingray-sql` | `stingray-sql` | JDBC datasource + Flyway + HikariCP |
+  | `stingray-http-client` | `stingray-http-client` | HTTP client utilities |
+  | `stingray-http-client-apache` | `stingray-http-client-apache` | Apache HttpClient impl |
+  | `stingray-application-security` | `stingray-application-security` | Combined app + security |
+  | `stingray-application-test` | `stingray-application-test` | Test utilities |
+  | `stingray-security-test` | `stingray-security-test` | Security test utilities |
+  | `stingray-sql-test` | `stingray-sql-test` | SQL test utilities (embedded Postgres) |
+  | `stingray-parent` | `stingray-parent` | Parent POM for dependency management |
+  | `samples/` | greeter, randomizer, integrationtests | Example applications |
+
+  ## stingray-application (Core)
+
+  ### StingrayApplication
+  `StingrayApplication` is the base interface. `AbstractStingrayApplication` provides
+  the standard bootstrap:
+
+  ```java
+  public class MyApp extends AbstractStingrayApplication<MyApp> {
+      public static void main(String[] args) {
+          new StingrayApplicationFactory<>(MyApp::new)
+              .init()
+              .start();
+      }
+  }
+  ```
+
+  **Key classes:**
+  - `StingrayApplication` -- base application interface
+  - `AbstractStingrayApplication` -- standard bootstrap (Jetty + Jersey + lifecycle)
+  - `StingrayApplicationFactory` -- factory for creating and starting applications
+  - `StingrayRegistry` -- service registry for component registration
+  - `StingrayLogging` -- logging configuration
+
+  ### Health System
+  - `StingrayHealthService` -- aggregates health probes
+  - `StingrayHealthProbe` -- interface for individual health checks
+  - `StingrayHealthResource` -- REST endpoint: `GET /health`
+  - Health responses follow Cantara conventions (JSON with status, version, running_since)
+
+  ### Other Core Components
+  - `StingrayJacksonMapperProvider` -- Jackson ObjectMapper configuration for Jersey
+  - `StingrayCORSServletFilter` -- CORS handling for REST APIs
+  - `StingrayDefaultExceptionServletFilter` -- global exception handling
+  - `StingrayOpenApiResource` / `StingrayOpenApiSpecFilter` -- OpenAPI/Swagger support
+  - `StingrayMetrics` / `StingrayFileDescriptorMetricSet` -- Metrics collection
+
+  ## stingray-security (Whydah Integration)
+
+  ### Authentication
+
+  The security module provides a complete Whydah authentication pipeline:
+
+  **Authentication Manager Chain:**
+  - `StingrayAuthenticationManager` -- top-level auth manager interface
+  - `StingrayAuthenticationManagerFactory` -- factory SPI for auth manager creation
+  - `WhydahStingrayAuthenticationManager` -- Whydah-specific implementation
+  - `WhydahStingrayAuthenticationManagerFactory` -- creates Whydah auth manager
+
+  **Whydah Session Management:**
+  - `StingrayWhydahSession` -- manages `WhydahApplicationSession` lifecycle
+  - `StingrayWhydahApplicationSessionConfigurator` -- configures Whydah session
+  - `DefaultStingrayWhydahService` / `StingrayWhydahService` -- Whydah operations
+  - `WhydahStingraySecurityProperties` -- security config properties
+  - `StingrayApplicationTokenSession` -- app token session management
+
+  **Authentication Result Model:**
+  - `StingrayAuthentication` -- base authentication
+  - `StingrayApplicationAuthentication` -- application-level auth
+  - `StingrayUserAuthentication` -- user-level auth
+  - `StingrayCantaraUserAuthentication` -- Cantara-specific user auth
+  - `StingrayApplicationTag` -- application tag for multi-tenant routing
+  - `StingrayAuthenticationResult` -- auth result with principal
+  - `StingrayJwtHelper` -- JWT token utilities
+
+  ### Authorization (RBAC)
+
+  - `StingrayAccessManager` -- access control interface
+  - `DefaultStingrayAccessManager` -- default RBAC implementation
+  - `StingrayAccessManagerFactory` -- factory SPI
+  - `StingrayRole` -- role definition
+  - `StingrayGroup` -- group definition
+  - `StingrayPolicy` -- access policy
+  - `StingrayPermission` -- permission definition
+  - `StingrayPermissionDecision` -- grant/deny decision
+  - `StingrayServiceAction` -- action being authorized
+  - `StingrayConfiguredUserPermissions` -- user permission config
+  - `StingrayConfiguredApplicationPermissions` -- app permission config
+
+  ## stingray-sql (Database Layer)
+
+  ### Datasource Management
+  - `StingraySqlDatasource` -- datasource interface (wraps HikariCP or embedded Postgres)
+  - `StingraySqlDatasourceFactory` -- factory SPI for datasource creation
+  - `HikariStingraySqlDatasource` -- HikariCP connection pool implementation
+  - `HikariStingraySqlDatasourceFactory` -- creates HikariCP datasources
+
+  ### Transaction Management
+  - `StingraySqlTransaction` -- transaction interface
+  - `DefaultStingraySqlTransaction` -- default transaction implementation
+  - `StingraySqlTransactionFactory` -- creates transactions from datasource
+  - `StingraySqlException` -- SQL exception wrapper
+
+  ### Flyway Integration
+  - `StingrayFlywayMigrationHelper` -- Flyway migration runner
+  - Uses custom history table: `schema_version` (NOT Flyway default `flyway_schema_history`)
+  - Migration location: `db/migration` by default
+
+  **CRITICAL:** `StingrayFlywayMigrationHelper.forMigration()` uses `schema_version` as the
+  history table name. This is different from Spring Boot's default `flyway_schema_history`.
+  Both can coexist in the same database without conflict.
+
+  ## microservice-baseline (Template)
+
+  The microservice-baseline is a project template built on Stingray:
+
+  **Port:** 8086 (default)
+  **Health:** `http://localhost:8086/microservice-baseline/health`
+  **Tech stack:** Java 8+, Jersey 2.x, Jetty 9.x, Spring 5.x, Hystrix
+
+  **What it provides out of the box:**
+  - Embedded Jetty server with Jersey JAX-RS
+  - Health check endpoint (`/health`)
+  - Token validation endpoint (`/token`, `/verify`)
+  - OAuth2 integration patterns
+  - Hystrix command wrappers for downstream calls
+  - Test data simulator
+  - Standard Cantara project structure
+
+  **Usage:** Clone microservice-baseline and customize for your specific service.
+
+  ## How To: Common Tasks
+
+  ### Create a new Cantara microservice from scratch
+  1. Clone microservice-baseline or create a new Maven project
+  2. Add `stingray-application` dependency
+  3. Extend `AbstractStingrayApplication`
+  4. Register resources and services in `StingrayRegistry`
+  5. Add health probes via `StingrayHealthService`
+  6. Build: `mvn clean install`
+
+  ### Add Whydah security to a Stingray service
+  1. Add `stingray-security` dependency
+  2. Configure `WhydahStingraySecurityProperties` with STS URL and app credentials
+  3. Register `WhydahStingrayAuthenticationManagerFactory` in your application
+  4. Authentication is handled automatically for secured endpoints
+
+  ### Add SQL database support
+  1. Add `stingray-sql` dependency
+  2. Create `StingraySqlDatasource` via factory with JDBC URL, username, password
+  3. Add Flyway migrations in `src/main/resources/db/migration/`
+  4. Call `StingrayFlywayMigrationHelper.forMigration()` at startup
+  5. Use `StingraySqlTransactionFactory` for transactional operations
+
+  ### Build Stingray itself
+  ```bash
+  cd /src/cantara/stingray && mvn clean install
+  ```
+
+  ## Gotchas & Pitfalls
+
+  1. **Flyway history table name:** Stingray uses `schema_version`, NOT `flyway_schema_history`.
+     If you see "table already exists" errors with Flyway, check which history table is
+     being used. Spring Boot's `flyway()` bean uses the default name.
+
+  2. **Embedded Postgres singleton:** `EmbeddedPostgresStingraySqlDatasource` (in
+     stingray-sql-test) is a JVM-wide singleton. `close()` is a no-op. Multiple test
+     classes share the same instance. This is by design for test performance.
+
+  3. **PostgreSQL 15+ schema permissions:** Embedded Postgres in tests requires explicit
+     `GRANT ALL ON SCHEMA public TO <user>` for Flyway migrations. See
+     `cantara-task-protocol.yaml` for the full fix pattern.
+
+  4. **Jersey 2.x (javax.ws.rs):** Stingray uses Jersey 2.x with javax namespace, NOT
+     Jersey 3.x (jakarta). Do not mix javax and jakarta imports in Stingray-based services.
+     STS has migrated to Jakarta; everything else is still javax.
+
+  5. **Constretto configuration:** Most Stingray-based services use Constretto for
+     configuration, not Spring Boot properties. Config loads from `{service}.properties`
+     and `{service}_override.properties`.
+
+  6. **Health check conventions:** Cantara health endpoints return JSON with specific fields:
+     `status`, `version`, `running_since`, `now`. Visuale expects this format.
+
+  7. **Docker support:** Stingray includes `docker/postgres/` with Docker Compose for
+     PostgreSQL, useful for local development of services with SQL persistence.
+
+  ## Related Skills
+
+  - `cantara-whydah.yaml` -- Whydah architecture (stingray-security integrates with Whydah)
+  - `whydah-sdk-development.yaml` -- Whydah SDK (stingray-security uses WhydahApplicationSession)
+  - `cantara-configservice.yaml` -- ConfigService (built on Stingray)
+  - `cantara-valuereporter.yaml` -- Valuereporter (uses Stingray patterns)
+  - `cantara-visuale.yaml` -- Visuale (consumes Stingray health endpoints)
+  - `cantara-task-protocol.yaml` -- Embedded Postgres gotchas (discovered in Stingray context)
+
+  ## Repository Paths
+
+  - Stingray framework: `/src/cantara/stingray/`
+  - Microservice baseline: `/src/cantara/microservice-baseline/`
