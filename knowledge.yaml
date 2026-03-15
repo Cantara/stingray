@@ -1,25 +1,75 @@
-id: stingray-project
-name: Stingray
+kcp_version: "0.10"
+project: stingray
 version: 1.11.9-SNAPSHOT
-description: |
-  Lightweight application framework built on Servlets, Jetty, and JAX-RS
-  (Jersey). Provides a streamlined foundation for building RESTful services with
-  Cantara conventions, health checks, and lifecycle management baked in.
+updated: "2026-03-15"
+language: en
+license: "Apache-2.0"
+indexing: private
+
 units:
+
   - id: application
-    name: Application
-    type: component
-    description: Stingray application bootstrap — wires Jetty, Jersey, and component lifecycle.
-    path: src/main/java/no/cantara/stingray
+    path: stingray-application
+    intent: "How does a Stingray service bootstrap? Application lifecycle entry point — wires Jetty, Jersey (JAX-RS), and all registered components. Start here to understand how a Stingray-based service initialises and shuts down."
+    scope: global
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [bootstrap, application, startup, lifecycle, Jetty, Jersey, JAX-RS, Stingray app, wiring, service init]
+
   - id: server
-    name: Server
-    type: component
-    description: Embedded Jetty server configuration — port, thread pool, and connector setup.
+    path: stingray-application
+    intent: "How is the embedded Jetty server configured? Port binding, thread pool sizing, connector setup, and HTTP/HTTPS configuration — the infrastructure layer beneath Jersey resource routing."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [application]
+    triggers: [Jetty, server, port, thread pool, connector, HTTPS, embedded server, HTTP config]
+
   - id: security
-    name: Security
-    type: component
-    description: Authentication and authorisation integration hooks for securing REST endpoints.
+    path: stingray-security
+    intent: "How are REST endpoints secured in Stingray services? Authentication and authorisation integration hooks — Whydah token validation filters and security context propagation for JAX-RS resources."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [application]
+    triggers: [security, authentication, authorisation, Whydah, token filter, JAX-RS security, security context, 401, 403]
+
+  - id: http-client
+    path: stingray-http-client
+    intent: "What HTTP client does Stingray provide for outbound calls? Fluent HTTP client wrapper with Cantara conventions — connection pooling, timeout configuration, and common request/response handling patterns."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    triggers: [HTTP client, outbound, connection pool, timeout, REST client, HTTP call, Apache HTTP]
+
   - id: health
-    name: Health
-    type: component
-    description: Health check and readiness endpoints conforming to Cantara conventions.
+    path: stingray-application
+    intent: "How does a Stingray service expose health endpoints? Health check and readiness endpoints conforming to Cantara conventions — wired automatically into every Stingray application."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [application]
+    triggers: [health, readiness, liveness, health check, Cantara health, monitoring, probe, /health]
+
+  - id: sql
+    path: stingray-sql
+    intent: "How does Stingray support relational database access? SQL module providing DataSource configuration, connection pooling, and lifecycle-managed database access for Stingray services."
+    scope: module
+    audience: [developer, agent]
+    validated: "2026-03-15"
+    depends_on: [application]
+    triggers: [SQL, database, DataSource, connection pool, JDBC, relational, DB access]
+
+relationships:
+  - from: server
+    to: application
+    type: depends_on
+  - from: security
+    to: application
+    type: depends_on
+  - from: health
+    to: application
+    type: depends_on
+  - from: sql
+    to: application
+    type: depends_on
