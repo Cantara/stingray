@@ -1,10 +1,18 @@
-kcp_version: "0.12"
+kcp_version: "0.21"
 project: stingray
 version: 1.11.9-SNAPSHOT
-updated: "2026-03-19"
+updated: "2026-06-20"
+temporal:
+  valid_from: "2026-03-19"
+signing:
+  scheme: ed25519
+  scope: this-manifest
+  public_key: "MCowBQYDK2VwAyEAuipgusnqU9vjf3p2yPVLD/DmERT6tBbLOqEETdxAhMU="
+  signature: "https://raw.githubusercontent.com/Cantara/stingray/main/knowledge.yaml.sig"
 language: en
 license: "Apache-2.0"
 indexing: private
+not_for: []
 
 units:
 
@@ -15,6 +23,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [bootstrap, application, startup, lifecycle, Jetty, Jersey, JAX-RS, Stingray app, wiring, service init]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
   - id: server
     path: stingray-application
@@ -24,6 +35,9 @@ units:
     validated: "2026-03-15"
     depends_on: [application]
     triggers: [Jetty, server, port, thread pool, connector, HTTPS, embedded server, HTTP config]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
   - id: security
     path: stingray-security
@@ -33,6 +47,9 @@ units:
     validated: "2026-03-15"
     depends_on: [application]
     triggers: [security, authentication, authorisation, Whydah, token filter, JAX-RS security, security context, 401, 403]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
   - id: http-client
     path: stingray-http-client
@@ -41,6 +58,9 @@ units:
     audience: [developer, agent]
     validated: "2026-03-15"
     triggers: [HTTP client, outbound, connection pool, timeout, REST client, HTTP call, Apache HTTP]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
   - id: health
     path: stingray-application
@@ -50,6 +70,9 @@ units:
     validated: "2026-03-15"
     depends_on: [application]
     triggers: [health, readiness, liveness, health check, Cantara health, monitoring, probe, /health]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
   - id: sql
     path: stingray-sql
@@ -59,6 +82,9 @@ units:
     validated: "2026-03-15"
     depends_on: [application]
     triggers: [SQL, database, DataSource, connection pool, JDBC, relational, DB access]
+      content_hash:
+        algorithm: sha256
+        value: ""
 
 relationships:
   - from: server
