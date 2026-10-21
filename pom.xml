@@ -57,6 +57,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- jakarta.xml.bind-api below 3.0.0 still ships the javax.xml.bind
+                 packages, so a transitive 2.3.x would put the javax namespace
+                 under the jakarta coordinate and clash with a 3.x consumer.
+                 Managed here rather than in stingray-parent, because only three
+                 modules inherit that one; every module inherits this pom. -->
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>4.0.4</version>
+            </dependency>
             <dependency>
                 <groupId>no.cantara.config</groupId>
                 <artifactId>property-config</artifactId>

@@ -33,19 +33,6 @@
         <dependency>
             <groupId>net.whydah.sso</groupId>
             <artifactId>Whydah-Java-SDK</artifactId>
-            <exclusions>
-                <exclusion>
-                    <!-- replaced by javax.xml.bind:jaxb-api -->
-                    <groupId>jakarta.xml.bind</groupId>
-                    <artifactId>jakarta.xml.bind-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <!-- replaces jakarta.xml.bind:jakarta.xml.bind-api:2.3.x to allow in order to allow 3.x without causing incompatibility -->
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
